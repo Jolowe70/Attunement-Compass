@@ -87,9 +87,9 @@ function TestCard({ label, icon, content, index }) {
   const color = passed ? "#82C9A0" : "#E07B6A";
   return (
     <div style={{
-      border: `1px solid ${visible ? color + "44" : "#1E2D4A"}`,
+      border: "1px solid " + (visible ? color + "44" : "#1E2D4A"),
       borderRadius: 12, padding: "16px 20px",
-      background: visible ? `${color}08` : "transparent",
+      background: visible ? color + "08" : "transparent",
       transition: "all 0.5s ease",
       opacity: visible ? 1 : 0,
       transform: visible ? "translateY(0)" : "translateY(10px)",
@@ -99,12 +99,12 @@ function TestCard({ label, icon, content, index }) {
           <span style={{ fontSize: 17 }}>{icon}</span>
           <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 14, color: "#8A9EC0", letterSpacing: "0.06em", textTransform: "uppercase" }}>{label}</span>
         </div>
-        <span style={{ fontSize: 11, color, fontFamily: "monospace", letterSpacing: "0.1em" }}>
-          {passed ? "✓ ALIGNED" : "✗ MISALIGNED"}
+        <span style={{ fontSize: 11, color: color, fontFamily: "monospace", letterSpacing: "0.1em" }}>
+          {passed ? "ALIGNED" : "MISALIGNED"}
         </span>
       </div>
       <p style={{ margin: 0, color: "#B8C9E0", fontSize: 14.5, lineHeight: 1.72, fontFamily: "'Lora',serif" }}>
-        {content?.analysis || ""}
+        {content ? content.analysis : ""}
       </p>
     </div>
   );
@@ -124,10 +124,16 @@ function ProgressDots({ stage }) {
               width: active ? 28 : 10, height: 10, borderRadius: 5,
               background: done ? color : active ? color : "#1E2D4A",
               transition: "all 0.5s ease",
-              boxShadow: active ? `0 0 10px ${color}88` : "none",
+              boxShadow: active ? "0 0 10px " + color + "88" : "none",
               flexShrink: 0,
             }} />
-            {i < 2 && <div style={{ flex: 1, height: 1, background: done ? `${STAGE_META[stages[i + 1]].color}44` : "#1A2840", transition: "background 0.5s ease", margin: "0 4px" }} />}
+            {i < 2 && (
+              <div style={{
+                flex: 1, height: 1,
+                background: done ? STAGE_META[stages[i + 1]].color + "44" : "#1A2840",
+                transition: "background 0.5s ease", margin: "0 4px"
+              }} />
+            )}
           </div>
         );
       })}
@@ -135,13 +141,38 @@ function ProgressDots({ stage }) {
   );
 }
 
-function Spinner({ color = "#C9A84C" }) {
+function Spinner({ color }) {
+  const c = color || "#C9A84C";
   return (
     <span style={{
       display: "inline-block", width: 14, height: 14,
-      border: `2px solid ${color}44`, borderTopColor: color,
+      border: "2px solid " + c + "44", borderTopColor: c,
       borderRadius: "50%", animation: "spin 0.8s linear infinite"
     }} />
+  );
+}
+
+function DonateButton() {
+  function handleClick() {
+    window.open("https://www.paypal.com/donate", "_blank");
+  }
+  return (
+    <button onClick={handleClick} style={{
+      display: "inline-block",
+      background: "#C9A84C11",
+      border: "1px solid #C9A84C55",
+      borderRadius: 10,
+      padding: "12px 28px",
+      color: "#C9A84C",
+      fontSize: 13.5,
+      fontFamily: "'Cormorant Garamond',serif",
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      cursor: "pointer",
+      transition: "all 0.2s",
+    }}>
+      Support His Dominion
+    </button>
   );
 }
 
@@ -159,35 +190,21 @@ export default function App() {
 
   const meta = STAGE_META[stage];
 
-  function scrollTop() { topRef.current?.scrollIntoView({ behavior: "smooth" }); }
+  function scrollTop() {
+    if (topRef.current) topRef.current.scrollIntoView({ behavior: "smooth" });
+  }
 
   async function runIdentification() {
-    if (!signal.trim()) { setError("Please describe the signal you're experiencing."); return; }
+    if (!signal.trim()) { setError("Please describe the signal you are experiencing."); return; }
     setError(""); setLoading(true); setAnalysisData(null);
     const s = { signal, domain, pressure };
     setSession(s);
     try {
       const raw = await callClaude({
-        system: `You are a spiritual discernment guide grounded in 1 John 4 and biblical theology. You help believers test whether a thought, feeling, or impulse aligns with the Spirit of Truth or the Spirit of Error. Be warm, pastoral, and deeply practical. Respond ONLY with valid JSON — no markdown, no preamble.`,
+        system: "You are a spiritual discernment guide grounded in 1 John 4 and biblical theology. You help believers test whether a thought, feeling, or impulse aligns with the Spirit of Truth or the Spirit of Error. Be warm, pastoral, and deeply practical. Respond ONLY with valid JSON — no markdown, no preamble.",
         messages: [{
           role: "user",
-          content: `A believer is running the Attunement Compass on this signal:
-
-Domain: ${s.domain || "Unspecified"}
-Signal: "${s.signal}"
-Pressure quality: ${s.pressure || "Not noted"}
-
-Apply the four calibration tests. Return JSON:
-{
-  "overall_source": "Spirit of Truth" or "Spirit of Error" or "Mixed / Requires Wisdom",
-  "summary": "1-2 sentence pastoral summary",
-  "tests": {
-    "christological": { "verdict": "pass" or "fail", "analysis": "2-3 sentences" },
-    "canonical":      { "verdict": "pass" or "fail", "analysis": "2-3 sentences" },
-    "character":      { "verdict": "pass" or "fail", "analysis": "2-3 sentences" },
-    "corporate":      { "verdict": "pass" or "fail", "analysis": "2-3 sentences" }
-  }
-}`,
+          content: "A believer is running the Attunement Compass on this signal:\n\nDomain: " + (s.domain || "Unspecified") + "\nSignal: \"" + s.signal + "\"\nPressure quality: " + (s.pressure || "Not noted") + "\n\nApply the four calibration tests. Return JSON:\n{\n  \"overall_source\": \"Spirit of Truth\" or \"Spirit of Error\" or \"Mixed / Requires Wisdom\",\n  \"summary\": \"1-2 sentence pastoral summary\",\n  \"tests\": {\n    \"christological\": { \"verdict\": \"pass\" or \"fail\", \"analysis\": \"2-3 sentences\" },\n    \"canonical\":      { \"verdict\": \"pass\" or \"fail\", \"analysis\": \"2-3 sentences\" },\n    \"character\":      { \"verdict\": \"pass\" or \"fail\", \"analysis\": \"2-3 sentences\" },\n    \"corporate\":      { \"verdict\": \"pass\" or \"fail\", \"analysis\": \"2-3 sentences\" }\n  }\n}",
         }],
       });
       setAnalysisData(JSON.parse(raw));
@@ -204,24 +221,10 @@ Apply the four calibration tests. Return JSON:
     setLoading(true); setResponseData(null);
     try {
       const raw = await callClaude({
-        system: `You are a pastoral guide helping a believer move from discernment to faithful action. Be specific, encouraging, and grounded in Scripture. Respond ONLY with valid JSON — no markdown, no preamble.`,
+        system: "You are a pastoral guide helping a believer move from discernment to faithful action. Be specific, encouraging, and grounded in Scripture. Respond ONLY with valid JSON — no markdown, no preamble.",
         messages: [{
           role: "user",
-          content: `Signal: "${session.signal}"
-Source: ${analysisData.overall_source}
-Summary: ${analysisData.summary}
-
-Generate a Faithful Response. Return JSON:
-{
-  "refutation_prayer": "A short specific prayer (2-4 sentences) naming and rejecting the error OR affirming the truth with gratitude",
-  "scripture_antidote": {
-    "reference": "Book Chapter:Verse",
-    "text": "The verse text",
-    "application": "1 sentence on how this verse speaks to this exact signal"
-  },
-  "one_step": "A single concrete bodily step the person can take in the next 10 minutes",
-  "encouragement": "1-2 sentences of pastoral encouragement tailored to what this person is facing"
-}`,
+          content: "Signal: \"" + session.signal + "\"\nSource: " + analysisData.overall_source + "\nSummary: " + analysisData.summary + "\n\nGenerate a Faithful Response. Return JSON:\n{\n  \"refutation_prayer\": \"A short specific prayer (2-4 sentences)\",\n  \"scripture_antidote\": {\n    \"reference\": \"Book Chapter:Verse\",\n    \"text\": \"The verse text\",\n    \"application\": \"1 sentence application\"\n  },\n  \"one_step\": \"A single concrete step in the next 10 minutes\",\n  \"encouragement\": \"1-2 sentences of pastoral encouragement\"\n}",
         }],
       });
       setResponseData(JSON.parse(raw));
@@ -239,8 +242,10 @@ Generate a Faithful Response. Return JSON:
     setTimeout(scrollTop, 100);
   }
 
-  const sourceColor = analysisData?.overall_source === "Spirit of Truth" ? "#82C9A0"
-    : analysisData?.overall_source === "Spirit of Error" ? "#E07B6A" : "#C9A84C";
+  const sourceColor = analysisData
+    ? (analysisData.overall_source === "Spirit of Truth" ? "#82C9A0"
+      : analysisData.overall_source === "Spirit of Error" ? "#E07B6A" : "#C9A84C")
+    : "#C9A84C";
 
   return (
     <div style={{ minHeight: "100vh", background: "#080F1C", fontFamily: "'Lora',serif", color: "#D4E0F0", padding: "0 0 80px", position: "relative", overflow: "hidden" }}>
@@ -250,10 +255,10 @@ Generate a Faithful Response. Return JSON:
           <div key={i} style={{
             position: "absolute", borderRadius: "50%", background: "#fff",
             width: Math.random() * 2 + 1, height: Math.random() * 2 + 1,
-            left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`,
+            left: Math.random() * 100 + "%", top: Math.random() * 100 + "%",
             opacity: Math.random() * 0.25 + 0.04,
-            animation: `twinkle ${Math.random() * 4 + 3}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 5}s`,
+            animation: "twinkle " + (Math.random() * 4 + 3) + "s ease-in-out infinite",
+            animationDelay: Math.random() * 5 + "s",
           }} />
         ))}
       </div>
@@ -275,24 +280,25 @@ Generate a Faithful Response. Return JSON:
 
       <div ref={topRef} style={{ position: "relative", zIndex: 1, maxWidth: 660, margin: "0 auto", padding: "0 20px" }}>
 
-        {/* Header */}
         <div style={{ textAlign: "center", paddingTop: 56, paddingBottom: 44, animation: "fadeUp 0.8s ease forwards" }}>
           <div style={{ letterSpacing: "0.25em", fontSize: 10.5, color: "#4A6080", textTransform: "uppercase", marginBottom: 14, fontFamily: "'Cormorant Garamond',serif" }}>
             A Spiritual Discernment Instrument
           </div>
           <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 300, fontSize: "clamp(36px,8vw,54px)", margin: 0, color: "#F0E6CC", letterSpacing: "0.04em", lineHeight: 1.1 }}>
-            The Attunement<br />
+            The Attunement
+            <br />
             <span style={{ color: "#C9A84C", fontStyle: "italic" }}>Compass</span>
           </h1>
           <div style={{ width: 36, height: 1, background: "#C9A84C44", margin: "18px auto" }} />
           <p style={{ fontSize: 14.5, color: "#6A80A0", maxWidth: 440, margin: "0 auto", lineHeight: 1.85, fontStyle: "italic" }}>
-            Every signal aligns you with one of two frequencies.<br />Stop. Test the signal. Recalibrate.
+            Every signal aligns you with one of two frequencies.
+            <br />
+            Stop. Test the signal. Recalibrate.
           </p>
         </div>
 
         <ProgressDots stage={stage} />
 
-        {/* Stage header */}
         <div key={stage} style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 28, animation: "fadeUp 0.45s ease forwards" }}>
           <CompassRose stage={stage} />
           <div style={{ flex: 1 }}>
@@ -300,7 +306,7 @@ Generate a Faithful Response. Return JSON:
               <span style={{ fontFamily: "'Cormorant Garamond',serif", color: meta.color, fontSize: 12.5, letterSpacing: "0.2em", textTransform: "uppercase" }}>
                 Stage {meta.number}
               </span>
-              <div style={{ height: 1, flex: 1, background: `${meta.color}33` }} />
+              <div style={{ height: 1, flex: 1, background: meta.color + "33" }} />
             </div>
             <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 400, fontSize: 27, margin: "0 0 7px", color: "#F0E6CC" }}>{meta.title}</h2>
             <p style={{ margin: "0 0 8px", fontSize: 13.5, color: "#7A8FAA", lineHeight: 1.6, fontStyle: "italic" }}>{meta.verse}</p>
@@ -308,7 +314,6 @@ Generate a Faithful Response. Return JSON:
           </div>
         </div>
 
-        {/* STAGE 1 */}
         {stage === "detect" && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
             <div style={{ marginBottom: 18 }}>
@@ -318,9 +323,15 @@ Generate a Faithful Response. Return JSON:
               <select value={domain} onChange={(e) => setDomain(e.target.value)}
                 style={{ width: "100%", background: "#0D1829", border: "1px solid #1E2D4A", borderRadius: 8, padding: "12px 16px", color: domain ? "#D4E0F0" : "#4A6080", fontSize: 15, fontFamily: "'Lora',serif", cursor: "pointer", appearance: "none" }}>
                 <option value="">Select a domain (optional)</option>
-                {["Relationships & Marriage", "Work & Vocation", "Inner Life & Identity", "Social & Community", "Financial", "Health & Body", "Ministry & Service", "Parenting & Family", "Other"].map(d => (
-                  <option key={d}>{d}</option>
-                ))}
+                <option>Relationships and Marriage</option>
+                <option>Work and Vocation</option>
+                <option>Inner Life and Identity</option>
+                <option>Social and Community</option>
+                <option>Financial</option>
+                <option>Health and Body</option>
+                <option>Ministry and Service</option>
+                <option>Parenting and Family</option>
+                <option>Other</option>
               </select>
             </div>
 
@@ -329,7 +340,7 @@ Generate a Faithful Response. Return JSON:
                 Name the Signal
               </label>
               <textarea value={signal} onChange={(e) => setSignal(e.target.value)}
-                placeholder="What specific thought, feeling, or impulse is knocking at the door of your mind right now? Be honest and plain…"
+                placeholder="What specific thought, feeling, or impulse is knocking at the door of your mind right now? Be honest and plain..."
                 rows={5}
                 style={{ width: "100%", background: "#0D1829", border: "1px solid #1E2D4A", borderRadius: 8, padding: "14px 16px", color: "#D4E0F0", fontSize: 15, fontFamily: "'Lora',serif", lineHeight: 1.7, resize: "vertical", transition: "border-color 0.2s" }} />
             </div>
@@ -339,33 +350,41 @@ Generate a Faithful Response. Return JSON:
                 Note the Pressure
               </label>
               <div style={{ display: "flex", gap: 10 }}>
-                {[
-                  { val: "urgent", label: "⚡ Urgent Rush", sub: "Fear, panic, compulsion" },
-                  { val: "gentle", label: "🌿 Quiet Nudge", sub: "Clear, patient, inviting" },
-                  { val: "unclear", label: "◌ Unclear", sub: "Hard to name yet" },
-                ].map((opt) => (
-                  <button key={opt.val} onClick={() => setPressure(opt.val)}
-                    style={{ flex: 1, background: pressure === opt.val ? "#C9A84C15" : "#0D1829", border: `1px solid ${pressure === opt.val ? "#C9A84C" : "#1E2D4A"}`, borderRadius: 10, padding: "13px 8px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
-                    <div style={{ fontSize: 13.5, color: pressure === opt.val ? "#C9A84C" : "#8A9EC0", marginBottom: 3, fontFamily: "'Lora',serif" }}>{opt.label}</div>
-                    <div style={{ fontSize: 11, color: "#4A6080" }}>{opt.sub}</div>
-                  </button>
-                ))}
+                <button onClick={() => setPressure("urgent")}
+                  style={{ flex: 1, background: pressure === "urgent" ? "#C9A84C15" : "#0D1829", border: "1px solid " + (pressure === "urgent" ? "#C9A84C" : "#1E2D4A"), borderRadius: 10, padding: "13px 8px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+                  <div style={{ fontSize: 13.5, color: pressure === "urgent" ? "#C9A84C" : "#8A9EC0", marginBottom: 3, fontFamily: "'Lora',serif" }}>Urgent Rush</div>
+                  <div style={{ fontSize: 11, color: "#4A6080" }}>Fear, panic, compulsion</div>
+                </button>
+                <button onClick={() => setPressure("gentle")}
+                  style={{ flex: 1, background: pressure === "gentle" ? "#C9A84C15" : "#0D1829", border: "1px solid " + (pressure === "gentle" ? "#C9A84C" : "#1E2D4A"), borderRadius: 10, padding: "13px 8px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+                  <div style={{ fontSize: 13.5, color: pressure === "gentle" ? "#C9A84C" : "#8A9EC0", marginBottom: 3, fontFamily: "'Lora',serif" }}>Quiet Nudge</div>
+                  <div style={{ fontSize: 11, color: "#4A6080" }}>Clear, patient, inviting</div>
+                </button>
+                <button onClick={() => setPressure("unclear")}
+                  style={{ flex: 1, background: pressure === "unclear" ? "#C9A84C15" : "#0D1829", border: "1px solid " + (pressure === "unclear" ? "#C9A84C" : "#1E2D4A"), borderRadius: 10, padding: "13px 8px", cursor: "pointer", textAlign: "center", transition: "all 0.2s" }}>
+                  <div style={{ fontSize: 13.5, color: pressure === "unclear" ? "#C9A84C" : "#8A9EC0", marginBottom: 3, fontFamily: "'Lora',serif" }}>Unclear</div>
+                  <div style={{ fontSize: 11, color: "#4A6080" }}>Hard to name yet</div>
+                </button>
               </div>
             </div>
 
             {error && <p style={{ color: "#E07B6A", fontSize: 13.5, marginBottom: 14 }}>{error}</p>}
 
             <button onClick={runIdentification} disabled={loading}
-              style={{ width: "100%", background: loading ? "#1A2840" : "linear-gradient(135deg,#C9A84C22,#7B9EBE22)", border: `1px solid ${loading ? "#1E2D4A" : "#C9A84C66"}`, borderRadius: 10, padding: "15px 24px", color: loading ? "#4A6080" : "#C9A84C", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.12em", textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", transition: "all 0.3s", animation: !loading ? "pulse 2.5s infinite" : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-              {loading ? <><Spinner /> Testing the Signal…</> : "→ Test the Signal"}
+              style={{ width: "100%", background: loading ? "#1A2840" : "#C9A84C11", border: "1px solid " + (loading ? "#1E2D4A" : "#C9A84C66"), borderRadius: 10, padding: "15px 24px", color: loading ? "#4A6080" : "#C9A84C", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.12em", textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", transition: "all 0.3s", animation: loading ? "none" : "pulse 2.5s infinite", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              {loading ? (
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Spinner />
+                  Testing the Signal...
+                </span>
+              ) : "Test the Signal"}
             </button>
           </div>
         )}
 
-        {/* STAGE 2 */}
         {stage === "identify" && analysisData && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
-            <div style={{ border: `1px solid ${sourceColor}44`, borderRadius: 14, padding: "20px 22px", background: `${sourceColor}0A`, marginBottom: 26, textAlign: "center" }}>
+            <div style={{ border: "1px solid " + sourceColor + "44", borderRadius: 14, padding: "20px 22px", background: sourceColor + "0A", marginBottom: 26, textAlign: "center" }}>
               <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#5A7090", textTransform: "uppercase", marginBottom: 7, fontFamily: "'Cormorant Garamond',serif" }}>Source Identified</div>
               <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 27, color: sourceColor, fontWeight: 400, marginBottom: 9 }}>{analysisData.overall_source}</div>
               <p style={{ margin: 0, fontSize: 14.5, color: "#8A9EC0", lineHeight: 1.75, fontStyle: "italic" }}>
@@ -374,14 +393,10 @@ Generate a Faithful Response. Return JSON:
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
-              {[
-                { key: "christological", label: "Christological Test", icon: "✝" },
-                { key: "canonical", label: "Canonical Test", icon: "📖" },
-                { key: "character", label: "Character Test", icon: "🌱" },
-                { key: "corporate", label: "Corporate Test", icon: "🏛" },
-              ].map((t, i) => (
-                <TestCard key={t.key} label={t.label} icon={t.icon} content={analysisData.tests?.[t.key]} index={i} />
-              ))}
+              <TestCard label="Christological Test" icon="Cross" content={analysisData.tests ? analysisData.tests.christological : null} index={0} />
+              <TestCard label="Canonical Test" icon="Book" content={analysisData.tests ? analysisData.tests.canonical : null} index={1} />
+              <TestCard label="Character Test" icon="Fruit" content={analysisData.tests ? analysisData.tests.character : null} index={2} />
+              <TestCard label="Corporate Test" icon="Church" content={analysisData.tests ? analysisData.tests.corporate : null} index={3} />
             </div>
 
             {error && <p style={{ color: "#E07B6A", fontSize: 13.5, marginBottom: 14 }}>{error}</p>}
@@ -389,92 +404,78 @@ Generate a Faithful Response. Return JSON:
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={reset}
                 style={{ flexShrink: 0, background: "transparent", border: "1px solid #1E2D4A", borderRadius: 10, padding: "13px 18px", color: "#4A6080", fontSize: 14, fontFamily: "'Cormorant Garamond',serif", cursor: "pointer" }}>
-                ← Start Over
+                Start Over
               </button>
               <button onClick={runResponse} disabled={loading}
-                style={{ flex: 1, background: loading ? "#1A2840" : "linear-gradient(135deg,#82C9A022,#2A6A4A22)", border: `1px solid ${loading ? "#1E2D4A" : "#82C9A066"}`, borderRadius: 10, padding: "13px 20px", color: loading ? "#4A6080" : "#82C9A0", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.1em", textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", transition: "all 0.3s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-                {loading ? <><Spinner color="#82C9A0" /> Preparing Response…</> : "→ Generate Faithful Response"}
+                style={{ flex: 1, background: loading ? "#1A2840" : "#82C9A011", border: "1px solid " + (loading ? "#1E2D4A" : "#82C9A066"), borderRadius: 10, padding: "13px 20px", color: loading ? "#4A6080" : "#82C9A0", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.1em", textTransform: "uppercase", cursor: loading ? "not-allowed" : "pointer", transition: "all 0.3s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                {loading ? (
+                  <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Spinner color="#82C9A0" />
+                    Preparing Response...
+                  </span>
+                ) : "Generate Faithful Response"}
               </button>
             </div>
           </div>
         )}
 
-        {/* STAGE 3 */}
         {stage === "respond" && responseData && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
 
             <div style={{ border: "1px solid #C9A84C33", borderRadius: 14, padding: "20px 22px", background: "#C9A84C07", marginBottom: 16 }}>
-              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#8A7040", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>🙏 Active Refutation — Prayer</div>
+              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#8A7040", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>Active Refutation — Prayer</div>
               <p style={{ margin: 0, fontSize: 16, color: "#D4C890", lineHeight: 1.85, fontStyle: "italic", fontFamily: "'Cormorant Garamond',serif" }}>"{responseData.refutation_prayer}"</p>
             </div>
 
             <div style={{ border: "1px solid #7B9EBE33", borderRadius: 14, padding: "20px 22px", background: "#7B9EBE07", marginBottom: 16 }}>
-              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#5A7090", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>📖 Scriptural Recalibration</div>
-              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: "#7B9EBE", marginBottom: 7 }}>{responseData.scripture_antidote?.reference}</div>
-              <p style={{ margin: "0 0 10px", fontSize: 15.5, color: "#B8C9E0", lineHeight: 1.82, fontStyle: "italic" }}>"{responseData.scripture_antidote?.text}"</p>
-              <p style={{ margin: 0, fontSize: 13.5, color: "#6A80A0", lineHeight: 1.65, borderTop: "1px solid #1E2D4A", paddingTop: 10 }}>{responseData.scripture_antidote?.application}</p>
+              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#5A7090", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>Scriptural Recalibration</div>
+              <div style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 18, color: "#7B9EBE", marginBottom: 7 }}>
+                {responseData.scripture_antidote ? responseData.scripture_antidote.reference : ""}
+              </div>
+              <p style={{ margin: "0 0 10px", fontSize: 15.5, color: "#B8C9E0", lineHeight: 1.82, fontStyle: "italic" }}>
+                "{responseData.scripture_antidote ? responseData.scripture_antidote.text : ""}"
+              </p>
+              <p style={{ margin: 0, fontSize: 13.5, color: "#6A80A0", lineHeight: 1.65, borderTop: "1px solid #1E2D4A", paddingTop: 10 }}>
+                {responseData.scripture_antidote ? responseData.scripture_antidote.application : ""}
+              </p>
             </div>
 
             <div style={{ border: "1px solid #82C9A033", borderRadius: 14, padding: "20px 22px", background: "#82C9A007", marginBottom: 16 }}>
-              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#4A7A60", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>👣 Your One Step — Right Now</div>
+              <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#4A7A60", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>Your One Step — Right Now</div>
               <p style={{ margin: 0, fontSize: 16, color: "#82C9A0", lineHeight: 1.8, fontFamily: "'Cormorant Garamond',serif" }}>{responseData.one_step}</p>
             </div>
 
-            <div style={{ borderRadius: 14, padding: "20px 22px", background: "linear-gradient(135deg,#0D1829,#111E35)", border: "1px solid #2A3A5C", marginBottom: 16, textAlign: "center" }}>
+            <div style={{ borderRadius: 14, padding: "20px 22px", background: "#0D1829", border: "1px solid #2A3A5C", marginBottom: 16, textAlign: "center" }}>
               <p style={{ margin: 0, fontSize: 15, color: "#8A9EC0", lineHeight: 1.85, fontStyle: "italic", fontFamily: "'Cormorant Garamond',serif" }}>{responseData.encouragement}</p>
             </div>
 
-            {/* WATCH THIS SPACE */}
-            <div style={{ borderRadius: 14, padding: "28px 24px", background: "linear-gradient(135deg,#0D1829,#0A1520)", border: "1px solid #C9A84C33", marginBottom: 16, textAlign: "center" }}>
+            <div style={{ borderRadius: 14, padding: "28px 24px", background: "#0A1520", border: "1px solid #C9A84C33", marginBottom: 16, textAlign: "center" }}>
               <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#C9A84C77", textTransform: "uppercase", marginBottom: 12, fontFamily: "'Cormorant Garamond',serif" }}>
                 The Journey Continues
               </div>
               <p style={{ margin: "0 0 4px", fontSize: 20, color: "#F0E6CC", fontFamily: "'Cormorant Garamond',serif", fontWeight: 300, lineHeight: 1.4 }}>
                 This tool is one part of a larger journey.
               </p>
-              <p style={{ margin: "0 0 18px", fontSize: 15, color: "#C9A84C", fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", animation: "shimmer 3s ease-in-out infinite" }}>
-                Watch this space — Coming Soon ✦
+              <p style={{ margin: "0 0 18px", fontSize: 15, color: "#C9A84C", fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic" }}>
+                Watch this space — Coming Soon
               </p>
               <div style={{ width: 40, height: 1, background: "#C9A84C44", margin: "0 auto 18px" }} />
               <p style={{ margin: "0 0 18px", fontSize: 13.5, color: "#6A80A0", fontFamily: "'Lora',serif", lineHeight: 1.75 }}>
                 If this tool has blessed you, consider supporting the mission through His Dominion — a 501(c)(3) nonprofit. Your gift is tax-deductible and helps us keep building life-changing tools, free for everyone.
               </p>
-              
-                href="https://www.paypal.com/donate"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: "inline-block",
-            <button
-                onClick={() => window.open("https://www.paypal.com/donate", "_blank")}
-                style={{
-                  display: "inline-block",
-                  background: "linear-gradient(135deg,#C9A84C22,#C9A84C11)",
-                  border: "1px solid #C9A84C55",
-                  borderRadius: 10,
-                  padding: "12px 28px",
-                  color: "#C9A84C",
-                  fontSize: 13.5,
-                  fontFamily: "'Cormorant Garamond',serif",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                🤍 Support His Dominion
-              </button>
+              <DonateButton />
+            </div>
 
             {error && <p style={{ color: "#E07B6A", fontSize: 13.5, marginBottom: 14 }}>{error}</p>}
 
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setStage("identify")}
                 style={{ flexShrink: 0, background: "transparent", border: "1px solid #1E2D4A", borderRadius: 10, padding: "13px 18px", color: "#4A6080", fontSize: 14, fontFamily: "'Cormorant Garamond',serif", cursor: "pointer" }}>
-                ← Back
+                Back
               </button>
               <button onClick={reset}
-                style={{ flex: 1, background: "linear-gradient(135deg,#C9A84C15,#7B9EBE15)", border: "1px solid #C9A84C55", borderRadius: 10, padding: "13px 20px", color: "#C9A84C", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s" }}>
-                ✦ Begin a New Session
+                style={{ flex: 1, background: "#C9A84C11", border: "1px solid #C9A84C55", borderRadius: 10, padding: "13px 20px", color: "#C9A84C", fontSize: 15, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.3s" }}>
+                Begin a New Session
               </button>
             </div>
           </div>
@@ -482,11 +483,10 @@ Generate a Faithful Response. Return JSON:
 
         <div style={{ textAlign: "center", marginTop: 56, paddingTop: 20, borderTop: "1px solid #0F1E30" }}>
           <p style={{ fontSize: 11.5, color: "#2A3A5C", fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.1em", fontStyle: "italic" }}>
-            "Greater is he that is in you, than he that is in the world." — 1 John 4:4
+            Greater is he that is in you, than he that is in the world. — 1 John 4:4
           </p>
         </div>
       </div>
     </div>
   );
-}
 }
