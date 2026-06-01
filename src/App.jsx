@@ -445,6 +445,10 @@ Generate a Faithful Response. Return JSON:
                 rel="noopener noreferrer"
                 style={{
                   display: "inline-block",
+            <button
+                onClick={() => window.open("https://www.paypal.com/donate", "_blank")}
+                style={{
+                  display: "inline-block",
                   background: "linear-gradient(135deg,#C9A84C22,#C9A84C11)",
                   border: "1px solid #C9A84C55",
                   borderRadius: 10,
@@ -454,13 +458,12 @@ Generate a Faithful Response. Return JSON:
                   fontFamily: "'Cormorant Garamond',serif",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  textDecoration: "none",
+                  cursor: "pointer",
                   transition: "all 0.2s",
                 }}
               >
                 🤍 Support His Dominion
-              </a>
-            </div>
+              </button>
 
             {error && <p style={{ color: "#E07B6A", fontSize: 13.5, marginBottom: 14 }}>{error}</p>}
 
