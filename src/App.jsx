@@ -235,6 +235,7 @@ Generate a Faithful Response. Return JSON:
 
   return (
     <div style={{ minHeight: "100vh", background: "#080F1C", fontFamily: "'Lora',serif", color: "#D4E0F0", padding: "0 0 80px", position: "relative", overflow: "hidden" }}>
+
       <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
         {Array.from({ length: 55 }).map((_, i) => (
           <div key={i} style={{
@@ -254,15 +255,19 @@ Generate a Faithful Response. Return JSON:
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 #C9A84C33} 50%{box-shadow:0 0 0 14px #C9A84C00} }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes shimmer { 0%,100%{opacity:0.6} 50%{opacity:1} }
         textarea,select{outline:none!important}
         textarea:focus,select:focus{border-color:#C9A84C88!important}
         ::-webkit-scrollbar{width:4px}
         ::-webkit-scrollbar-track{background:#0D1829}
         ::-webkit-scrollbar-thumb{background:#2A3A5C;border-radius:2px}
         *{box-sizing:border-box}
+        .donate-btn:hover{background:linear-gradient(135deg,#C9A84C33,#C9A84C22)!important;border-color:#C9A84C!important}
       `}</style>
 
       <div ref={topRef} style={{ position: "relative", zIndex: 1, maxWidth: 660, margin: "0 auto", padding: "0 20px" }}>
+
+        {/* Header */}
         <div style={{ textAlign: "center", paddingTop: 56, paddingBottom: 44, animation: "fadeUp 0.8s ease forwards" }}>
           <div style={{ letterSpacing: "0.25em", fontSize: 10.5, color: "#4A6080", textTransform: "uppercase", marginBottom: 14, fontFamily: "'Cormorant Garamond',serif" }}>
             A Spiritual Discernment Instrument
@@ -279,6 +284,7 @@ Generate a Faithful Response. Return JSON:
 
         <ProgressDots stage={stage} />
 
+        {/* Stage header */}
         <div key={stage} style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 28, animation: "fadeUp 0.45s ease forwards" }}>
           <CompassRose stage={stage} />
           <div style={{ flex: 1 }}>
@@ -294,6 +300,7 @@ Generate a Faithful Response. Return JSON:
           </div>
         </div>
 
+        {/* STAGE 1 */}
         {stage === "detect" && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
             <div style={{ marginBottom: 18 }}>
@@ -345,6 +352,7 @@ Generate a Faithful Response. Return JSON:
           </div>
         )}
 
+        {/* STAGE 2 */}
         {stage === "identify" && analysisData && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
             <div style={{ border: `1px solid ${sourceColor}44`, borderRadius: 14, padding: "20px 22px", background: `${sourceColor}0A`, marginBottom: 26, textAlign: "center" }}>
@@ -381,6 +389,7 @@ Generate a Faithful Response. Return JSON:
           </div>
         )}
 
+        {/* STAGE 3 */}
         {stage === "respond" && responseData && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
             <div style={{ border: "1px solid #C9A84C33", borderRadius: 14, padding: "20px 22px", background: "#C9A84C07", marginBottom: 16 }}>
@@ -400,8 +409,46 @@ Generate a Faithful Response. Return JSON:
               <p style={{ margin: 0, fontSize: 16, color: "#82C9A0", lineHeight: 1.8, fontFamily: "'Cormorant Garamond',serif" }}>{responseData.one_step}</p>
             </div>
 
-            <div style={{ borderRadius: 14, padding: "20px 22px", background: "linear-gradient(135deg,#0D1829,#111E35)", border: "1px solid #2A3A5C", marginBottom: 28, textAlign: "center" }}>
+            <div style={{ borderRadius: 14, padding: "20px 22px", background: "linear-gradient(135deg,#0D1829,#111E35)", border: "1px solid #2A3A5C", marginBottom: 16, textAlign: "center" }}>
               <p style={{ margin: 0, fontSize: 15, color: "#8A9EC0", lineHeight: 1.85, fontStyle: "italic", fontFamily: "'Cormorant Garamond',serif" }}>{responseData.encouragement}</p>
+            </div>
+
+            {/* ── WATCH THIS SPACE ── */}
+            <div style={{ borderRadius: 14, padding: "28px 24px", background: "linear-gradient(135deg,#0D1829,#0A1520)", border: "1px solid #C9A84C33", marginBottom: 16, textAlign: "center", animation: "fadeUp 0.6s ease forwards" }}>
+              <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#C9A84C77", textTransform: "uppercase", marginBottom: 12, fontFamily: "'Cormorant Garamond',serif" }}>
+                The Journey Continues
+              </div>
+              <p style={{ margin: "0 0 4px", fontSize: 20, color: "#F0E6CC", fontFamily: "'Cormorant Garamond',serif", fontWeight: 300, lineHeight: 1.4 }}>
+                This tool is one part of a larger journey.
+              </p>
+              <p style={{ margin: "0 0 18px", fontSize: 15, color: "#C9A84C", fontFamily: "'Cormorant Garamond',serif", fontStyle: "italic", animation: "shimmer 3s ease-in-out infinite" }}>
+                Watch this space — Coming Soon ✦
+              </p>
+              <div style={{ width: 40, height: 1, background: "#C9A84C44", margin: "0 auto 18px" }} />
+              <p style={{ margin: "0 0 18px", fontSize: 13.5, color: "#6A80A0", fontFamily: "'Lora',serif", lineHeight: 1.75 }}>
+                If this tool has blessed you, consider supporting the mission so we can keep building life-changing tools — free for everyone.
+              </p>
+              
+                href="https://www.paypal.com/donate"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="donate-btn"
+                style={{
+                  display: "inline-block",
+                  background: "linear-gradient(135deg,#C9A84C22,#C9A84C11)",
+                  border: "1px solid #C9A84C55",
+                  borderRadius: 10,
+                  padding: "12px 28px",
+                  color: "#C9A84C",
+                  fontSize: 13.5,
+                  fontFamily: "'Cormorant Garamond',serif",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  textDecoration: "none",
+                  transition: "all 0.2s",
+                }}>
+                🤍 Support Omega Wellness Center
+              </a>
             </div>
 
             {error && <p style={{ color: "#E07B6A", fontSize: 13.5, marginBottom: 14 }}>{error}</p>}
