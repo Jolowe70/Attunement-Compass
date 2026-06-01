@@ -79,7 +79,10 @@ function TypingText({ text, speed = 16 }) {
 
 function TestCard({ label, icon, content, index }) {
   const [visible, setVisible] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setVisible(true), index * 280 + 150); return () => clearTimeout(t); }, [index]);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), index * 280 + 150);
+    return () => clearTimeout(t);
+  }, [index]);
   const passed = content?.verdict === "pass";
   const color = passed ? "#82C9A0" : "#E07B6A";
   return (
@@ -124,7 +127,7 @@ function ProgressDots({ stage }) {
               boxShadow: active ? `0 0 10px ${color}88` : "none",
               flexShrink: 0,
             }} />
-            {i < 2 && <div style={{ flex: 1, height: 1, background: done ? `${STAGE_META[stages[i+1]].color}44` : "#1A2840", transition: "background 0.5s ease", margin: "0 4px" }} />}
+            {i < 2 && <div style={{ flex: 1, height: 1, background: done ? `${STAGE_META[stages[i + 1]].color}44` : "#1A2840", transition: "background 0.5s ease", margin: "0 4px" }} />}
           </div>
         );
       })}
@@ -133,7 +136,13 @@ function ProgressDots({ stage }) {
 }
 
 function Spinner({ color = "#C9A84C" }) {
-  return <span style={{ display: "inline-block", width: 14, height: 14, border: `2px solid ${color}44`, borderTopColor: color, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />;
+  return (
+    <span style={{
+      display: "inline-block", width: 14, height: 14,
+      border: `2px solid ${color}44`, borderTopColor: color,
+      borderRadius: "50%", animation: "spin 0.8s linear infinite"
+    }} />
+  );
 }
 
 export default function App() {
@@ -255,14 +264,13 @@ Generate a Faithful Response. Return JSON:
         @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 #C9A84C33} 50%{box-shadow:0 0 0 14px #C9A84C00} }
         @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes shimmer { 0%,100%{opacity:0.6} 50%{opacity:1} }
+        @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
         textarea,select{outline:none!important}
         textarea:focus,select:focus{border-color:#C9A84C88!important}
         ::-webkit-scrollbar{width:4px}
         ::-webkit-scrollbar-track{background:#0D1829}
         ::-webkit-scrollbar-thumb{background:#2A3A5C;border-radius:2px}
         *{box-sizing:border-box}
-        .donate-btn:hover{background:linear-gradient(135deg,#C9A84C33,#C9A84C22)!important;border-color:#C9A84C!important}
       `}</style>
 
       <div ref={topRef} style={{ position: "relative", zIndex: 1, maxWidth: 660, margin: "0 auto", padding: "0 20px" }}>
@@ -310,7 +318,9 @@ Generate a Faithful Response. Return JSON:
               <select value={domain} onChange={(e) => setDomain(e.target.value)}
                 style={{ width: "100%", background: "#0D1829", border: "1px solid #1E2D4A", borderRadius: 8, padding: "12px 16px", color: domain ? "#D4E0F0" : "#4A6080", fontSize: 15, fontFamily: "'Lora',serif", cursor: "pointer", appearance: "none" }}>
                 <option value="">Select a domain (optional)</option>
-                {["Relationships & Marriage","Work & Vocation","Inner Life & Identity","Social & Community","Financial","Health & Body","Ministry & Service","Parenting & Family","Other"].map(d => <option key={d}>{d}</option>)}
+                {["Relationships & Marriage", "Work & Vocation", "Inner Life & Identity", "Social & Community", "Financial", "Health & Body", "Ministry & Service", "Parenting & Family", "Other"].map(d => (
+                  <option key={d}>{d}</option>
+                ))}
               </select>
             </div>
 
@@ -366,9 +376,9 @@ Generate a Faithful Response. Return JSON:
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 28 }}>
               {[
                 { key: "christological", label: "Christological Test", icon: "✝" },
-                { key: "canonical",      label: "Canonical Test",      icon: "📖" },
-                { key: "character",      label: "Character Test",      icon: "🌱" },
-                { key: "corporate",      label: "Corporate Test",      icon: "🏛" },
+                { key: "canonical", label: "Canonical Test", icon: "📖" },
+                { key: "character", label: "Character Test", icon: "🌱" },
+                { key: "corporate", label: "Corporate Test", icon: "🏛" },
               ].map((t, i) => (
                 <TestCard key={t.key} label={t.label} icon={t.icon} content={analysisData.tests?.[t.key]} index={i} />
               ))}
@@ -392,6 +402,7 @@ Generate a Faithful Response. Return JSON:
         {/* STAGE 3 */}
         {stage === "respond" && responseData && (
           <div style={{ animation: "fadeUp 0.45s ease forwards" }}>
+
             <div style={{ border: "1px solid #C9A84C33", borderRadius: 14, padding: "20px 22px", background: "#C9A84C07", marginBottom: 16 }}>
               <div style={{ fontSize: 10.5, letterSpacing: "0.2em", color: "#8A7040", textTransform: "uppercase", marginBottom: 10, fontFamily: "'Cormorant Garamond',serif" }}>🙏 Active Refutation — Prayer</div>
               <p style={{ margin: 0, fontSize: 16, color: "#D4C890", lineHeight: 1.85, fontStyle: "italic", fontFamily: "'Cormorant Garamond',serif" }}>"{responseData.refutation_prayer}"</p>
@@ -413,8 +424,8 @@ Generate a Faithful Response. Return JSON:
               <p style={{ margin: 0, fontSize: 15, color: "#8A9EC0", lineHeight: 1.85, fontStyle: "italic", fontFamily: "'Cormorant Garamond',serif" }}>{responseData.encouragement}</p>
             </div>
 
-            {/* ── WATCH THIS SPACE ── */}
-            <div style={{ borderRadius: 14, padding: "28px 24px", background: "linear-gradient(135deg,#0D1829,#0A1520)", border: "1px solid #C9A84C33", marginBottom: 16, textAlign: "center", animation: "fadeUp 0.6s ease forwards" }}>
+            {/* WATCH THIS SPACE */}
+            <div style={{ borderRadius: 14, padding: "28px 24px", background: "linear-gradient(135deg,#0D1829,#0A1520)", border: "1px solid #C9A84C33", marginBottom: 16, textAlign: "center" }}>
               <div style={{ fontSize: 10, letterSpacing: "0.28em", color: "#C9A84C77", textTransform: "uppercase", marginBottom: 12, fontFamily: "'Cormorant Garamond',serif" }}>
                 The Journey Continues
               </div>
@@ -426,13 +437,12 @@ Generate a Faithful Response. Return JSON:
               </p>
               <div style={{ width: 40, height: 1, background: "#C9A84C44", margin: "0 auto 18px" }} />
               <p style={{ margin: "0 0 18px", fontSize: 13.5, color: "#6A80A0", fontFamily: "'Lora',serif", lineHeight: 1.75 }}>
-                If this tool has blessed you, consider supporting the mission so we can keep building life-changing tools — free for everyone.
+                If this tool has blessed you, consider supporting the mission through His Dominion — a 501(c)(3) nonprofit. Your gift is tax-deductible and helps us keep building life-changing tools, free for everyone.
               </p>
               
                 href="https://www.paypal.com/donate"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="donate-btn"
                 style={{
                   display: "inline-block",
                   background: "linear-gradient(135deg,#C9A84C22,#C9A84C11)",
@@ -446,8 +456,9 @@ Generate a Faithful Response. Return JSON:
                   textTransform: "uppercase",
                   textDecoration: "none",
                   transition: "all 0.2s",
-                }}>
-                🤍 Support Omega Wellness Center
+                }}
+              >
+                🤍 Support His Dominion
               </a>
             </div>
 
@@ -474,4 +485,5 @@ Generate a Faithful Response. Return JSON:
       </div>
     </div>
   );
+}
 }
