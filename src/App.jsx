@@ -762,7 +762,7 @@ export default function App() {
               <p style={{ margin: "0 0 18px", fontSize: 13.5, color: "#6A80A0", fontFamily: "'Lora',serif", lineHeight: 1.75 }}>
                 {T.donateText}
               </p>
-              <button onClick={() => window.open(https://www.paypal.com/donate/?hosted_button_id=GC9VLNCQV38UY)}
+              <button onClick={() => window.open(https://www.paypal.com/donate/?hosted_button_id=MWQHNBSUBX396)}
                 style={{ display: "inline-block", background: "#C9A84C11", border: "1px solid #C9A84C55", borderRadius: 10, padding: "12px 28px", color: "#C9A84C", fontSize: 13.5, fontFamily: "'Cormorant Garamond',serif", letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.2s" }}>
                 {T.donateBtn}
               </button>
